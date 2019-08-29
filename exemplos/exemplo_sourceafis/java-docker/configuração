@@ -1,0 +1,5 @@
+1) Alterar Dockerfile com o IP do serviço que ele deve se comunicar
+2) Executar Dockerfile e criar imagem
+3) enviar imagem para um repositório
+3) No ambiente de testes baixar a imagem gerada do Dockerfile
+4) executar comando kubectl run --image <NOME_IMAGEM>

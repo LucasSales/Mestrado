@@ -1,0 +1,4 @@
+Primeiro executar influxdb.yaml
+Segundo executar heapster-rbac.yaml
+Terceiro executar heapster.yaml
+

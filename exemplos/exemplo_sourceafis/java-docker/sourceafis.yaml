@@ -1,0 +1,29 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    app: sourceafis-lite
+  name: sourceafis-lite
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sourceafis-lite
+  template:
+    metadata:
+      labels:
+        app: sourceafis-lite
+    spec:
+      containers:
+      - image: lucassales/sourceafis-lite:k-4
+        name: sourceafis-lite
+        ports:
+        - containerPort: 8085
+        resources:
+          limits:
+            cpu: 300m
+            memory: 2Gi
+          requests:
+            cpu: 300m
+            memory: 512Mi

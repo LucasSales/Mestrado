@@ -1,0 +1,69 @@
+------------------------------------------------------------------------------------
+#Para executar local utilizando minikube é necessário realizar os seguintes comandos
+-- minikube start
+-- kubectl config use-context minikube
+-- eval $(minikube docker-env)
+------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------
+#PRE SETTINGS
+-- add in your pom.xml
+/*
+<dependency>
+   <groupId>org.postgresql</groupId>
+   <artifactId>postgresql</artifactId>
+   <scope>runtime</scope>
+</dependency>
+*/
+
+-- Replace in your applications.properties the spring.datasource.url, spring.datasource.username and spring.datasource.password by:
+spring.datasource.url=jdbc:postgresql://${POSTGRES_HOST}:5432/postgres
+spring.datasource.username=${POSTGRES_USER}
+spring.datasource.password=${POSTGRES_PASSWORD}
+
+-- Install maven and run command mvn -N io.takari:maven:wrapper
+
+-- After run command ./mvnw -DskipTests package
+
+-- Create your Dockerfile
+/*
+FROM openjdk:8-jdk-alpine
+COPY target/<YOUR_JAR>.jar /app.jar
+EXPOSE 8085/tcp
+ENTRYPOINT ["java", "-jar", "/app.jar"]
+*/
+-- Run command sudo docker build -t <NAME_YOUR_IMAGE>:<TAG_YOUR_IMAGE> <LOCAL_DOCKERFILE>
+
+-- add your docker image to your dockerhub repository
+-- sudo docker tag <NAME_IMAGE>:<TAG> <YOUR_ACCOUNT_NAME_DOCKERHUB>/<TAG>
+-- sudo docker push <YOUR_ACCOUNT_NAME_DOCKERHUB>/<TAG>
+------------------------------------------------------------------------------------
+
+------------------------------------------------------------------------------------
+#FIRST 
+--kubectl create -f database.yml
+
+#SECOND
+
+-- NAME_YOUR_HOST = webservice-hostname
+-- NAME_YOUR_DB_SERVICE = postgres
+
+-- kubectl create configmap <NAME_YOUR_HOST> --from-literal=postgres_host=$(kubectl get svc <NAME_YOUR_DB_SERVICE> -o jsonpath="{.spec.clusterIP}")
+
+#THIRD
+
+-- kubectl create -f webservice.yml
+
+------------------------------------------------------------------------------------
+
+------------------------------------------------------------------------------------
+#UPDATE IMAGE
+
+-- kubectl set image deployment/<NAME_DEPLOYMENT> <NAME_IMAGE>=<your Docker Hub account>/<NEW_IMAGE_NAME>:<TAG_NAME>
+------------------------------------------------------------------------------------
+
+------------------------------------------------------------------------------------
+#DELETE
+-- kubectl delete -f <FILE.yml>
+-- kubectl delete svc <SERVICE_NAME>
+-- kubectl delete cm <CONFIGMAP_NAME>
+------------------------------------------------------------------------------------

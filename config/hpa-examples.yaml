@@ -1,0 +1,60 @@
+#Neste rquvo tem exemplos de como utilizar o hpa para escalar automaticamente o node-server e o sourceafis-lite
+#exaple CPU
+apiVersion: autoscaling/v2beta1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: node-server-hpa
+  namespace: default
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1 
+    kind: Deployment 
+    name: node-server
+  minReplicas: 1 
+  maxReplicas: 2
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      targetAverageUtilization: 50 
+---
+#exemplo memory
+apiVersion: autoscaling/v2beta1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: node-server-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: extensions/v1beta1 #colocar igual ao do deployment
+    kind: Deployment 
+    name: node-server
+  minReplicas: 1 
+  maxReplicas: 2 
+  metrics:
+  - type: Resource
+    resource:
+      name: memory
+      targetAverageUtilization: 50 
+---
+#exemplo 3
+apiVersion: autoscaling/v2beta1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: node-server-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1beta1
+    kind: Deployment
+    name:  node-server
+  minReplicas: 1
+  maxReplicas: 2
+  #targetCPUUtilizationPercentage: 50
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      targetAverageUtilization: 40
+  - type: Resource
+    resource:
+      name: memory
+      targetAverageUtilization: 50 

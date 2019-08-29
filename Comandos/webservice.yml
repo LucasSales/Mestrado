@@ -1,0 +1,32 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: webservice #NAME_DEPLOYMENT
+  namespace: default
+spec:
+  replicas: 2 #QTD_REPLICAS
+  template:
+    metadata:
+      name: webservice
+      labels:
+        app: webservice
+    spec:
+      containers:
+      - name: webservice #CONTAINER_NAME
+        env:
+          - name: POSTGRES_USER
+            valueFrom:
+              configMapKeyRef:
+                name: postgres-config
+                key: postgres_user
+          - name: POSTGRES_PASSWORD
+            valueFrom:
+              configMapKeyRef:
+                name: postgres-config
+                key: postgres_password
+          - name: POSTGRES_HOST
+            valueFrom:
+              configMapKeyRef:
+                name: webservice-hostname #HOST_NAME
+                key: postgres_host
+        image:  lucassales/webservice:v1 #IMAGE_BUILD_YOUR_SPRING_BOOT_PROJECT

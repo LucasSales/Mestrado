@@ -1,0 +1,7 @@
+1- Primeiro executar es-statfulset.yaml e es-svc.yaml
+
+2- Segundo executar kubectl get svc -n kube-system e pegar o IP do elasticsearch-logging e colocar no arquivo kibana-deploy.yaml e no arquivo fluentd-es-ds.yaml
+
+3- Terceiro executar kibana-deploy.yaml e kibana-svc.yaml
+
+4- Quarto executar fluentd-configmap.yml e fluentd-es-ds.yml

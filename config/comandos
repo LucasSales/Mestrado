@@ -1,0 +1,288 @@
+----------------------------------------------------node-server--------------------------------
+#Para executar local utilizando minikube é necessário realizar os seguintes comandos
+-- minikube start
+-- kubectl config use-context minikube
+-- eval $(minikube docker-env)
+------------------------------------------------------------------------------------
+-- sudo apt-get update \
+   && sudo apt-get install -qy docker.io
+
+-- sudo apt-get update \
+   && sudo apt-get install -y apt-transport-https \
+   && curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
+-- echo "deb http://apt.kubernetes.io/ kubernetes-xenial main" \
+   | sudo tee -a /etc/apt/sources.list.d/kubernetes.list \
+   && sudo apt-get update 
+
+-- sudo apt-get update \
+   && sudo apt-get install -y \
+   kubelet \
+   kubeadm \
+   kubernetes-cni
+
+-- curl -sL https://gist.githubusercontent.com/alexellis/7315e75635623667c32199368aa11e95/raw/b025dfb91b43ea9309ce6ed67e24790ba65d7b67/kube.sh | sudo sh
+
+-- sudo kubeadm init --pod-network-cidr=10.244.0.0/16 --apiserver-advertise-address=<IP_YOUR_MASTER> --kubernetes-version stable-<VERSION_KUBERNETES>
+
+-- mkdir -p $HOME/.kube
+-- sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+-- sudo chown $(id -u):$(id -g) $HOME/.kube/config
+
+-- Keep your token
+
+-- kubectl taint nodes --all node-role.kubernetes.io/master-
+------------------------------------------------------------------------------------
+#PRE SETTINGS
+-- add in your pom.xml
+/*
+<dependency>
+   <groupId>org.postgresql</groupId>
+   <artifactId>postgresql</artifactId>
+   <scope>runtime</scope>
+</dependency>
+*/
+
+-- Replace in your applications.properties the spring.datasource.url, spring.datasource.username and spring.datasource.password by:
+/*
+spring.datasource.url=jdbc:postgresql://${POSTGRES_HOST}:5432/${DATABASE_NAME}  ##O nome do database é o mesmo que é colocado no database.yml
+spring.datasource.username=${POSTGRES_USER}
+spring.datasource.password=${POSTGRES_PASSWORD}
+*/
+-- Install maven and run command mvn -N io.takari:maven:wrapper
+
+-- After run command ./mvnw -DskipTests package
+
+-- Create your Dockerfile
+/*
+FROM openjdk:8-jdk-alpine
+COPY target/<YOUR_JAR>.jar /app.jar
+EXPOSE 8085/tcp
+ENTRYPOINT ["java", "-jar", "/app.jar"]
+*/
+-- Run command sudo docker build -t <NAME_YOUR_IMAGE>:<TAG_YOUR_IMAGE> <LOCAL_DOCKERFILE>
+
+-- add your docker image to your dockerhub repository
+-- sudo docker tag <NAME_IMAGE>:<TAG> <YOUR_ACCOUNT_NAME_DOCKERHUB>/<TAG>
+-- sudo docker push <YOUR_ACCOUNT_NAME_DOCKERHUB>/<TAG>
+
+kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
+
+kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/k8s-manifests/kube-flannel-rbac.yml
+------------------------------------------------------------------------------------
+
+------------------------------------------------------------------------------------
+#FIRST 
+--kubectl create -f database.yml
+
+--kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
+
+--kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/k8s-manifests/kube-flannel-rbac.yml
+#SECOND
+
+-- NAME_YOUR_HOST = webservice-hostname
+-- NAME_YOUR_DB_SERVICE = postgres
+
+-- kubectl create configmap <NAME_YOUR_HOST> --from-literal=postgres_host=$(kubectl get svc <NAME_YOUR_DB_SERVICE> -o jsonpath="{.spec.clusterIP}")
+
+-Comando Pronto
+-- kubectl create configmap webservice-hostname --from-literal=postgres_host=$(kubectl get svc postgres -o jsonpath="{.spec.clusterIP}") 
+#THIRD
+
+-- kubectl create -f webservice.yml
+
+#FOURTH
+-- kubectl expose deployment <NAME-YOUR-DEPLOYMENT> --type=LoadBalancer --port=8080
+-- kubectl autoscale deployment <NAME-YOUR-DEPLOYMENT> --cpu-percent=50 --min=1 --max=10
+------------------------------------------------------------------------------------
+
+------------------------------------------------------------------------------------
+#UPDATE IMAGE
+
+-- kubectl set image  deployment/<NAME_DEPLOYMENT> <NAME_IMAGE>=<your Docker Hub account>/<NEW_IMAGE_NAME>:<TAG_NAME>
+------------------------------------------------------------------------------------
+
+------------------------------------------------------------------------------------
+#DELETE
+-- kubectl delete -f <FILE.yml>
+-- kubectl delete svc <SERVICE_NAME>
+-- kubectl delete cm <CONFIGMAP_NAME>
+
+-- kubectl delete deployments --all
+-- kubectl delete svc --all
+-- kubectl delete cm --all
+-- kubectl delete pvc --all
+------------------------------------------------------------------------------------
+#usernameful Commands
+
+-- kubectl get deployments
+-- kubectl get pods
+-- kubectl get pods -o wide
+-- kubectl get svc
+-- kubectl get cm
+-- kubectl get pvc
+-- kubectl get pv
+-- kubectl get sc
+-- kubectl exec -it <nome_pod> bash
+-- kubectl logs --previous <name-pod> Ver erros depois de um pod parar de funcionar
+-- kubectl logs <name-pod> mostra os logs daquele momento de um pod
+-- kubectl get hpa
+-- kubectl get all --namespace=kube-system
+--  netstat -lnp | grep <port>
+-- kubectl -n kube-system describe secret $(kubectl -n kube-system get secret | grep <NAME-USER> | awk '{print $1}')
+-- kubeadm token create --print-join-command
+-- kubectl exec <NOME_POD> reboot (Reseet pod ssem precisar deletar)
+-- kubectl -n kube-system get secret
+-- kubectl -n kube-system describe secret
+-- curl -L http://heapster-pod-ip:heapster-service-port/api/v1/model/metrics/cpu/usage_rate   
+-- htps://metrics-server-ip:metrics-server-port/apis/metrics.k8s.io/v1beta1/namespaces/default/pods
+
+
+
+Erro sandbox kubernetes
+
+kubeadm reset
+systemctl stop kubelet
+systemctl stop docker
+rm -rf /var/lib/cni/
+rm -rf /var/lib/kubelet/*
+rm -rf /etc/cni/
+ifconfig cni0 down
+ifconfig flannel.1 down
+ifconfig docker0 down
+ip link delete cni0
+ip link delete flannel.1
+
+
+Unable to connect to the server: x509: certificate signed by unknown authority (possibly because of "crypto/rsa: verification error" while trying to verify candidate authority certificate "kubernetes")
+
+export KUBECONFIG=/etc/kubernetes/kubelet.conf
+
+systemctl start kubelet
+systemctl start docker
+
+kubectl expose deployment webservice  --port=8080 --target-port=31671  --name=webservice --type=LoadBalancer
+kubectl get pods --selector="app=webservice" --output=wide
+kubectl expose rc webservice --port=8080 --target-port=8080 --name=example-service --type=LoadBalancer
+
+#################################### CRIANDO SERVICE ACCOUNT K8S ####################################
+
+*********SERVICE ACCOUN*********
+
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: admin-user <NAME_USER>
+  namespace: kube-system <ADD-NAME-SPACE>
+
+*********RBAC*********
+
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRoleBinding
+metadata:
+  name: admin-user
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+- kind: ServiceAccount
+  name: admin-user
+  namespace: kube-system
+
+*************** DASHBOARD ************* erro metrics nao conseui pegar dados
+
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRoleBinding
+metadata:
+  name: kubernetes-dashboard
+  labels:
+    k8s-app: kubernetes-dashboard
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+- kind: ServiceAccount
+  name: kubernetes-dashboard
+  namespace: kube-system
+****************************************88  
+
+#####################################################################################################
+
+
+
+############################### RESOLVENDO PROBLEMA DO METRICS #####################################
+spec/template/spec/container
+- command:
+  - /metrics-server
+  - --kubelet-insecure-tls
+  - --kubelet-preferred-address-types=InternalIP
+
+#####################################################################################################
+
+
+############################ MUDANDO PERMISSAO DO USUARIO DEFAULT K8S ###############################
+-----CHANGE CLUSTER ------
+kubectl create clusterrolebinding cluster-system-anonymous --clusterrole=cluster-admin --user=system:anonymous
+--------------------------
+
+#####################################################################################################
+
+#################### PROBLEMAS COM INTERFACE DE REDE - REMOVER TUDO E REEXECUTAR ####################
+
+kubeadm reset
+systemctl stop kubelet
+systemctl stop docker
+rm -rf /var/lib/cni/
+rm -rf /var/lib/kubelet/*
+rm -rf /etc/cni/
+ifconfig cni0 down
+ifconfig flannel.1 down
+ifconfig docker0 down
+ip link delete cni0
+ip link delete flannel.1
+
+systemctl start kubelet
+systemctl start docker
+
+#####################################################################################################
+
+/*
+
+First: 
+- `kubectl create -f database.yml`
+
+Second:
+
+- `NAME_YOUR_HOST = webservice-hostname`
+- `NAME_YOUR_DB_SERVICE = postgres`
+- `kubectl create configmap <NAME_YOUR_HOST> --from-literal=postgres_host=$(kubectl get svc <NAME_YOUR_DB_SERVICE> -o jsonpath="{.spec.clusterIP}")`
+
+Third:
+- `kubectl create -f webservice.yml`
+
+Fourth:
+- Before this step, install metrics-server k8s
+- `kubectl expose deployment <NAME-YOUR-DEPLOYMENT> --type=LoadBalancer --port=8080`
+- Scale manually: `kubectl scale deployment <NAME-YOUR-DEPLOYMENT> --replicas=3`
+- Autoscale: `kubectl autoscale deployment <NAME-YOUR-DEPLOYMENT> --cpu-percent=50 --min=1 --max=10`
+
+*/
+
+
+********************GET TOKEN********************
+kubectl -n kube-system describe secret $(kubectl -n kube-system get secret | grep NAME-USER | awk '{print $1}')
+-------------------------------------------------
+
+-------------PRINT TOKEN-------------------------
+kubeadm token create --print-join-command
+-------------------------------------------------
+
+##########################ERRO The connection to the server 10.0.0.101:6443 was refused - did you specify the right host or port?
+
+sudo -i
+swapoff -a
+exit
+strace -eopenat kubectl version
+
+################################################################

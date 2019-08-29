@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: node-server
+  labels:
+    app: node-server
+    tier: server
+spec:
+  # modify replicas according to your case
+  replicas: 1
+  selector:
+    matchLabels:
+      tier: server
+  template:
+    metadata:
+      labels:
+        app: node-server
+        tier: server
+    spec:
+      containers:
+      - name: node-server
+        image: lucassales/server-node:k-4
+        resources:
+          requests:
+            cpu: 100m
+            memory: 512Mi
+        ports:
+        - containerPort: 8085

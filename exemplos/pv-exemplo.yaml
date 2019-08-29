@@ -1,0 +1,19 @@
+# Para a versão do kubernetes superior a 1.11
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: storage-pv
+  namespace: kube-logging
+spec:
+  storageClassName: standard
+  capacity:
+    storage: 2Gi
+  claimRef:
+    apiVersion: v1
+    kind: PersistentVolumeClaim 
+    name: data-es-cluster-0 #pvc name
+    namespace: kube-logging
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/mnt/data"

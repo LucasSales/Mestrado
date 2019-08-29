@@ -1,0 +1,87 @@
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: webservice-rs
+  labels:
+    app: webservice-rs
+    tier: webservice-rs
+spec:
+  replicas: 2 #QTD_REPLICAS
+  selector:
+    matchLabels:
+      app: webservice-rs
+  template:
+    metadata:
+      name: webservice-rs
+      labels:
+        app: webservice-rs
+    spec:
+      containers:
+      - name: webservice-rs
+        image:  lucassales/webservice:db_postgres #IMAGE_BUILD_YOUR_SPRING_BOOT_PROJECT
+        resources:
+          requests:
+            cpu: 100m
+            memory: 100Mi
+        env:
+          - name: POSTGRES_USER
+            valueFrom:
+              configMapKeyRef:
+                name: postgres-config
+                key: postgres_user
+          - name: POSTGRES_PASSWORD
+            valueFrom:
+              configMapKeyRef:
+                name: postgres-config
+                key: postgres_password
+          - name: POSTGRES_HOST
+            valueFrom:
+              configMapKeyRef:
+                name: postgres-config #HOST_NAME
+                key: postgres_host
+          - name: GET_HOSTS_FROM
+            value: dns
+          # If your cluster config does not include a dns service, then to
+          # instead access environment variables to find service host
+          # info, comment out the 'value: dns' line above, and uncomment the
+          # line below.
+          # value: env
+        ports:
+        - containerPort: 8080
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "0.3"
+          limits:
+            memory: "2Gi"
+            cpu: "0.3"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: webservice-rs 
+  labels:
+    app: webservice-rs
+  namespace: default
+spec:
+  type: NodePort 
+  ports:
+  - port: 8080
+    targetPort: 8080
+    nodePort: 31143
+    protocol: TCP
+    name: http
+  selector:
+    app: webservice-rs
+# ---
+# apiVersion: autoscaling/v1
+# kind: HorizontalPodAutoscaler
+# metadata:
+#   name: webservice-rs
+# spec:
+#   scaleTargetRef:
+#     kind: ReplicaSet
+#     name: webservice-rs
+#   minReplicas: 1
+#   maxReplicas: 3
+#   targetCPUUtilizationPercentage: 30

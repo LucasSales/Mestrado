@@ -1,0 +1,9 @@
+Restart container in pod
+
+get the container name with:
+	kubectl get pods POD_NAME -n NAME_SPACE -o jsonpath='{.spec.containers[*].name}' && printf '\n'
+	ou
+	kubectl get pods -o=custom-columns=NAME:.metadata.name,CONTAINERS:.spec.containers[*].name
+
+restart the container:
+	kubectl exec -it POD_NAME -c CONTAINER_NAME -- /bin/sh -c "kill 1"
