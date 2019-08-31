@@ -6,16 +6,16 @@ class SSH:
         self.ssh = SSHClient()
         self.ssh.load_system_host_keys()
         self.ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        self.ssh.connect(hostname='10.42.0.49',username='ubuntu',password='lucas123')
+        self.ssh.connect(hostname='172.20.10.110',username='lucas',password='lucas')
  
     def exec_cmd(self,cmd):
         stdin,stdout,stderr = self.ssh.exec_command(cmd)
         if stderr.channel.recv_exit_status() != 0:
-            print stderr.read()
+            return stderr.read()
         else:
-            print stdout.read()
+            return stdout.read()
  
-if __name__ == '__main__':
-    ssh = SSH()
-    ssh.exec_cmd("ls")
+# if __name__ == '__main__':
+#     ssh = SSH()
+#     ssh.exec_cmd("ls")
     

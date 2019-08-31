@@ -1,0 +1,12 @@
+#Python
+pip install pyyaml
+
+#Docker
+
+sudo docker build -f Dockerfile -t docker-serverpy:test .
+
+sudo docker tag <NAME_IMAGE>:<TAG> <YOUR_ACCOUNT_NAME_DOCKERHUB>/<TAG>
+sudo docker push <YOUR_ACCOUNT_NAME_DOCKERHUB>/<TAG>
+
+#Servidor
+sudo lsof -t -i tcp:<port> | xargs kill -9

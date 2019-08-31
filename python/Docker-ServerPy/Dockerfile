@@ -5,5 +5,7 @@ WORKDIR /app
 ADD . /app/
 RUN pip install -r requirements.txt
 
+COPY nginx-deployment.yaml /app/
+
 EXPOSE 5000
 CMD ["python", "/app/server.py"]
