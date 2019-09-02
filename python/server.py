@@ -6,7 +6,7 @@ from kubernetes import client, config
 
 import yaml
 
-import exec_cmd
+import exec_cmd as ex
 
 app = Flask(__name__)
 
@@ -20,7 +20,7 @@ def hello():
 @app.route("/ssh")
 def helloSSH():
     print ("ENTROU")
-    ssh = SSH()
+    ssh = ex.SSH()
     return ssh.exec_cmd("ls")
 
 def create_deployment_object():
