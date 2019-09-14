@@ -10,3 +10,39 @@ sudo docker push <YOUR_ACCOUNT_NAME_DOCKERHUB>/<TAG>
 
 #Servidor
 sudo lsof -t -i tcp:<port> | xargs kill -9
+
+docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' 46f4b0007249
+
+#K8s
+
+kubeadm reset
+systemctl stop kubelet
+systemctl stop docker
+rm -rf /var/lib/cni/
+rm -rf /var/lib/kubelet/*
+rm -rf /etc/cni/
+ifconfig cni0 down
+ifconfig flannel.1 down
+ifconfig docker0 down
+ip link delete cni0
+ip link delete flannel.1
+systemctl start kubelet
+systemctl start docker
+
+Unable to connect to the server: x509: certificate signed by unknown authority (possibly because of "crypto/rsa: verification error" while trying to verify candidate authority certificate "kubernetes")
+
+export KUBECONFIG=/etc/kubernetes/kubelet.conf
+
+systemctl start kubelet
+systemctl start docker
+
+sudo kubeadm init --pod-network-cidr=5.0.0.1/16 --apiserver-advertise-address=10.42.0.193 --kubernetes-version stable-1.15
+
+kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
+kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/k8s-manifests/kube-flannel-rbac.yml
+
+kubectl taint nodes --all node-role.kubernetes.io/master-
+
+kubectl create clusterrolebinding serviceaccounts-cluster-admin \
+  --clusterrole=cluster-admin \
+  --group=system:serviceaccounts

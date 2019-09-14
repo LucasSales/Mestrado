@@ -6,6 +6,8 @@ from kubernetes import client, config
 
 import yaml
 
+import ssh_local as ex
+
 app = Flask(__name__)
 
 DEPLOYMENT_NAME = "nginx-deployment"
@@ -15,6 +17,12 @@ DEPLOYMENT_NAME = "nginx-deployment"
 def hello():
     return "Hello from Python!"
 
+#Preciso conectar no raspberry e fazer o test
+@app.route("/ssh")
+def helloSSH():
+    print ("ENTROU")
+    ssh = ex.LocalSSH()
+    return ssh.exec_cmd("kubectl get no")
 
 def create_deployment_object():
     # Configureate Pod template container
