@@ -27,7 +27,8 @@ metadata:
 spec:
   selector:
     app: docker-serverpy
+  type: NodePort
   ports:
     - protocol: TCP
+      port: 5001
       targetPort: 5000
-  type: NodePort
