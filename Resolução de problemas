@@ -6,7 +6,7 @@ pip install pyyaml
 sudo docker build -f Dockerfile -t docker-serverpy:test .
 
 sudo docker tag <NAME_IMAGE>:<TAG> <YOUR_ACCOUNT_NAME_DOCKERHUB>/<TAG>
-sudo docker push <YOUR_ACCOUNT_NAME_DOCKERHUB>/<TAG>
+sudo docker push <YOUR_ACCOUNT_NAME_DOCKERHUB>EXPOSE 5000/<TAG>
 
 #Servidor
 sudo lsof -t -i tcp:<port> | xargs kill -9
@@ -46,3 +46,20 @@ kubectl taint nodes --all node-role.kubernetes.io/master-
 kubectl create clusterrolebinding serviceaccounts-cluster-admin \
   --clusterrole=cluster-admin \
   --group=system:serviceaccounts
+
+
+ #MICROK8S
+
+
+ If RBAC is not enabled access the dashboard using the default token retrieved with:
+
+token=$(microk8s.kubectl -n kube-system get secret | grep default-token | cut -d " " -f1)
+microk8s.kubectl -n kube-system describe secret $token
+
+In an RBAC enabled setup (microk8s.enable RBAC) you need to create a user with restricted
+permissions as shown in https://github.com/kubernetes/dashboard/wiki/Creating-sample-user
+
+
+eyJhbGciOiJSUzI1NiIsImtpZCI6ImF4ZlJLS0FlR2pUOVpvZTRqU1hBNE9RXzRFalZiQS03QWlHUDl1Ri1SMWsifQ.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJrdWJlLXN5c3RlbSIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VjcmV0Lm5hbWUiOiJkZWZhdWx0LXRva2VuLXZ0NzdrIiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZXJ2aWNlLWFjY291bnQubmFtZSI6ImRlZmF1bHQiLCJrdWJlcm5ldGVzLmlvL3NlcnZpY2VhY2NvdW50L3NlcnZpY2UtYWNjb3VudC51aWQiOiI4ZGJiZWRhMS1kNzMyLTQzNDYtYWM5ZC0xMDhjYWUyY2IyYTIiLCJzdWIiOiJzeXN0ZW06c2VydmljZWFjY291bnQ6a3ViZS1zeXN0ZW06ZGVmYXVsdCJ9.g7lJ6v6R_sJ2c331vJS70ZPCJoMksARp97Z1RG3VZrhU1EjpNXdnIhxgUfuQaH0YErOmhiQ4cdAmJMDnXIQSpF5EeafIb73nlLiKU2UKlJ-A96Bnn_Xq3gKI5wwAkQrVZISVGnQYywF2HTJwtdO6b_bD4FWdwIyoSsLojDYNNmcujCXhyLMn0BB4RiuRlreHWr3jm9ipFuXQuMcm1mmRZHM1DWOjB-qylpOSF1AtlZOBHtviB1B0CfzOeSi5pKAAAwoYMVzk0PVmdRUi5ukWyIq5kiaHWgim-eQowS6dkXaI1UXn-M9TDO-ougk7k9-meMJD4dxBKSc5OeayJccfgQ
+
+sudo docker container run --privileged -d blink:v1

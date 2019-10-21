@@ -22,7 +22,8 @@ def hello():
 def helloSSH():
     print ("ENTROU")
     ssh = ex.LocalSSH()
-    return ssh.exec_cmd("kubectl get no")
+    return ssh.exec_cmd("ls")
+    #return ssh.exec_cmd("microk8s.kubectl get no")
 
 def create_deployment_object():
     # Configureate Pod template container
