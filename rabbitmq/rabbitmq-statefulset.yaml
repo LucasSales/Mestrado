@@ -87,7 +87,7 @@ metadata:
     type: local
 spec:
   capacity:
-    storage: 8Gi
+    storage: 1Gi
   accessModes:
   - ReadWriteOnce
   storageClassName: local-storage
@@ -103,34 +103,34 @@ spec:
         - key: kubernetes.io/hostname
           operator: In
           values:
-          - dc2 #name_node
+          - ubuntu #name_node
 ---
-kind: PersistentVolume
-apiVersion: v1
-metadata:
-  name: pv-data-vol-1
-  labels:
-    type: local
-spec:
-  capacity:
-    storage: 8Gi
-  accessModes:
-  - ReadWriteOnce
-  storageClassName: local-storage
-  local:
-    path: "/mnt/disks/rabbitmq-1"
-  claimRef:
-    namespace: default
-    name: data-rabbitmq-1
-  nodeAffinity:
-    required:
-      nodeSelectorTerms:
-      - matchExpressions:
-        - key: kubernetes.io/hostname
-          operator: In
-          values:
-          - dc2 #name_node
----
+# kind: PersistentVolume
+# apiVersion: v1
+# metadata:
+#   name: pv-data-vol-1
+#   labels:
+#     type: local
+# spec:
+#   capacity:
+#     storage: 1Gi
+#   accessModes:
+#   - ReadWriteOnce
+#   storageClassName: local-storage
+#   local:
+#     path: "/mnt/disks/rabbitmq-1"
+#   claimRef:
+#     namespace: default
+#     name: data-rabbitmq-1
+#   nodeAffinity:
+#     required:
+#       nodeSelectorTerms:
+#       - matchExpressions:
+#         - key: kubernetes.io/hostname
+#           operator: In
+#           values:
+#           - dc2 #name_node
+# ---
 apiVersion: apps/v1beta1
 kind: StatefulSet
 metadata:
@@ -138,7 +138,7 @@ metadata:
   namespace: default
 spec:
   serviceName: rabbitmq
-  replicas: 2
+  replicas: 1
   template:
     metadata:
       labels:
@@ -155,7 +155,7 @@ spec:
           - rabbitmq.default.svc.kubernetes
       containers:        
       - name: rabbitmq-k8s
-        image: rabbitmq:3.7
+        image: rabbitmq:3-alpine
         volumeMounts:
           - name: config-volume
             mountPath: /etc/rabbitmq
@@ -224,4 +224,4 @@ spec:
         storageClassName: local-storage
         resources:
           requests:
-            storage: 3Gi
+            storage: 1Gi

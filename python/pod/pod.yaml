@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pythonlamp
+  labels:
+    app: pythonlamp
+spec:
+  containers:
+  - name: pythonlamp
+    image: lucassales/python_lamp
+    ports:
+    - containerPort: 80
+
