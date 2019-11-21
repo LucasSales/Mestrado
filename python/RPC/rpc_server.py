@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 import pika
 
-connection = pika.BlockingConnection(
-    pika.ConnectionParameters(host='localhost'))
 
+credentials = pika.PlainCredentials('guest', 'guest')
+connection = pika.BlockingConnection(pika.ConnectionParameters('172.20.10.105',30672,'/',credentials))
 channel = connection.channel()
 
 channel.queue_declare(queue='rpc_queue')
@@ -11,12 +11,12 @@ channel.queue_declare(queue='rpc_test')
 
 
 def fib(n):
-    if n == 0:
-        return 0
-    elif n == 1:
-        return 1
+    if n == 1:
+        
+        print(" [x] Received %r" % n)
     else:
-        return fib(n - 1) + fib(n - 2)
+        
+        print("Envie um valor correto")
 
 def sum(n):
     return n**n
